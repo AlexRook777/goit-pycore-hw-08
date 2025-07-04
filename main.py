@@ -1,6 +1,8 @@
 from classes import AddressBook, Record
 from datetime import datetime
 import pickle
+from prompt_toolkit import PromptSession
+from prompt_toolkit.completion import WordCompleter
 
 def input_error(func):
     """Декоратор для обробки помилок вводу"""
@@ -164,12 +166,28 @@ def load_data(filename="addressbook.pkl"):
     except FileNotFoundError:
         return AddressBook()
 
+COMMANDS = [
+    "add", "add name phone",\
+    "change", "change name old_phone new_phone",\
+    "phone", "phone name",\
+    "all", "show",\
+    "add-birthday", "add-birthday name date",\
+    "show-birthday", "show-birthday name",\
+    "birthdays", "birthdays",\
+    "hello", "hello",\
+    "help", "help",\
+    "close", "exit", "quit", "q"
+]
+
 def main():
     book = load_data()
     show_help()
-    
+
+    command_completer = WordCompleter(COMMANDS, ignore_case=True)
+    session = PromptSession()
+
     while True:
-        user_input = input("\nEnter a command: ")
+        user_input = session.prompt("\nEnter a command: ", completer=command_completer)
         command, *args = parse_input(user_input)
 
         if command in ["close", "exit", "quit", "q"]:
@@ -191,7 +209,7 @@ def main():
         elif command == "phone":
             print(show_phone(args, book))
 
-        elif command in ["all","show"] :
+        elif command in ["all", "show"]:
             print(show_all_contacts(args, book))
 
         elif command == "add-birthday":
@@ -207,4 +225,4 @@ def main():
             print("Invalid command.")
 
 if __name__ == "__main__":
-    main() 
+    main()
